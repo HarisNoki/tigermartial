@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard - Tiger MMA</title>
+  <link rel="stylesheet" href="CSS.css" />
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 4rem auto;
+      padding: 2rem;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007BFF;
+      margin-bottom: 2rem;
+    }
+
+    .info-box {
+      background: rgba(0,123,255,0.05);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 10px rgba(0,123,255,0.2);
+    }
+
+    .info-box span {
+      font-weight: bold;
+      color: #00d0ff;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0.5rem 0.5rem 1.5rem 0;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #classForm, #cancelForm {
+      background-color: rgba(0,123,255,0.05);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      display: none;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin: 0.5rem 0 1rem;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #007BFF;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    td {
+      background-color: rgba(255,255,255,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #000; color: white;">
+    <div class="logo" style="display: flex; align-items: center; gap: 1rem;">
+      <a href="homepage.html" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="logo.png" alt="Tiger Martial Arts Logo" style="height: 50px;">
+        <span style="font-weight: bold; color: #007BFF; font-size: 1.7rem; margin-left: 1rem;">TIGER MMA</span>
+      </a>
+    </div>
+    <nav>
+      <a href="Membership.html">Membership</a>
+      <a href="Instructors.html">Instructors</a>
+      <a href="Timetable.html">Timetable</a>
+      <a href="Facilities.html">Facilities</a>
+      <a href="signin.html">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <h2>Welcome to Tiger MMA Student Dashboard</h2>
+
+    <div class="info-box">
+      <p id="greeting"> Welcome</p>
+      <p> Remaining Classes: <span id="remainingClasses">Loading...</span> / <span id="totalClasses">Loading...</span></p>
+      <p> Fees Paid: ₤ <span id="feesPaid">Loading...</span></p>
+      <p> Fees Due: ₤ <span id="feesDue">Loading...</span></p>
+    </div>
+
+    <button onclick="toggleClassForm()">Add a Class</button>
+    <button onclick="toggleCancelForm()">Cancel a Class</button>
+
+    <!-- Add Class Form -->
+    <div id="classForm">
+      <h3 style="color: #007BFF;">Add a Class</h3>
+      <label for="classType">Martial Art Type:</label>
+      <select id="classType">
+        <option value="Kickboxing">Kickboxing</option>
+        <option value="Wrestling">Wrestling</option>
+        <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+      </select>
+
+      <label for="classTime">Class Time:</label>
+      <select id="classTime">
+        <option value="Monday 5pm">Monday 5pm</option>
+        <option value="Tuesday 6pm">Tuesday 6pm</option>
+        <option value="Wednesday 4pm">Wednesday 4pm</option>
+        <option value="Thursday 7pm">Thursday 7pm</option>
+      </select>
+
+      <label for="classFee">Fee (₤):</label>
+      <select id="classFee">
+        <option value="20">Beginner - £20</option>
+        <option value="35">Intermediate - £35</option>
+        <option value="50">Advanced - £50</option>
+        <option value="60">Elite - £60</option>
+      </select>
+
+      <button onclick="submitClass()">Confirm Booking</button>
+    </div>
+
+    <!-- Cancel Class Form -->
+    <div id="cancelForm">
+      <h3 style="color: #007BFF;">Cancel a Class</h3>
+      <label for="cancelSelect">Select Booking to Cancel:</label>
+      <select id="cancelSelect"></select>
+      <button onclick="cancelClass()">Cancel Selected Class</button>
+    </div>
+
+    <!-- Class History Table -->
+    <div id="history">
+      <h3 style="color: #007BFF;">Previous Class </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Martial Art</th>
+            <th>Time</th>
+            <th>Fee (₤)</th>
+          </tr>
+        </thead>
+        <tbody id="historyTable">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background-color: #000; color: white; text-align: center; padding: 1rem; border-top: 2px solid #007BFF;">
+    <p>&copy; 2025 Tiger Martial Arts. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCu0qNaElrIb0ExfqLb-ZxfCXSKW6WbL_Y",
+      authDomain: "tiger-mma-a43e9.firebaseapp.com",
+      projectId: "tiger-mma-a43e9",
+      storageBucket: "tiger-mma-a43e9.firebasestorage.app",
+      messagingSenderId: "275028568836",
+      appId: "1:275028568836:web:37f070cf3b3d5aa659be51"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const uid = new URLSearchParams(window.location.search).get('uid');
+    const name = new URLSearchParams(window.location.search).get('name');
+
+    if (name) {
+      document.getElementById('greeting').textContent = `👋 Hello, ${decodeURIComponent(name)}`;
+    }
+
+    function toggleClassForm() {
+      const form = document.getElementById('classForm');
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function toggleCancelForm() {
+      const form = document.getElementById('cancelForm');
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function fetchStudentData() {
+      if (!uid) return alert("UID missing in URL");
+
+      database.ref('users/' + uid).once('value').then(snapshot => {
+        const data = snapshot.val();
+        document.getElementById('remainingClasses').textContent = data?.remaining_classes || 0;
+        document.getElementById('totalClasses').textContent = data?.total_classes || 0;
+        document.getElementById('feesPaid').textContent = data?.fees_paid || 0;
+        document.getElementById('feesDue').textContent = data?.fees_due || 0;
+      });
+
+      loadClassHistory();
+    }
+
+    function submitClass() {
+      const classType = document.getElementById('classType').value;
+      const classTime = document.getElementById('classTime').value;
+      const classFee = parseInt(document.getElementById('classFee').value);
+
+      let remaining = parseInt(document.getElementById('remainingClasses').textContent) || 0;
+      let total = parseInt(document.getElementById('totalClasses').textContent) || 0;
+      let due = parseInt(document.getElementById('feesDue').textContent) || 0;
+
+      const booking = { class: classType, time: classTime, fee: classFee };
+      const bookingRef = database.ref('users/' + uid + '/bookings').push();
+      bookingRef.set(booking);
+
+      database.ref('users/' + uid).update({
+        remaining_classes: remaining + 1,
+        total_classes: total + 1,
+        fees_due: due + classFee
+      }).then(() => {
+        fetchStudentData();
+        toggleClassForm();
+        alert("Class booked successfully!");
+      });
+    }
+
+    function loadClassHistory() {
+      const table = document.getElementById('historyTable');
+      const cancelDropdown = document.getElementById('cancelSelect');
+      table.innerHTML = "";
+      cancelDropdown.innerHTML = "";
+
+      database.ref('users/' + uid + '/bookings').once('value').then(snapshot => {
+        snapshot.forEach(child => {
+          const data = child.val();
+          const row = `<tr><td>${data.class}</td><td>${data.time}</td><td>${data.fee}</td></tr>`;
+          table.innerHTML += row;
+
+          const option = document.createElement("option");
+          option.value = child.key;
+          option.text = `${data.class} @ ${data.time} - ₤ ${data.fee}`;
+          cancelDropdown.appendChild(option);
+        });
+      });
+    }
+
+    function cancelClass() {
+      const selectedKey = document.getElementById('cancelSelect').value;
+      if (!selectedKey) return alert("Select a class to cancel.");
+
+      database.ref('users/' + uid + '/bookings/' + selectedKey).once('value').then(snapshot => {
+        const fee = snapshot.val().fee;
+
+        let remaining = parseInt(document.getElementById('remainingClasses').textContent) || 0;
+        let total = parseInt(document.getElementById('totalClasses').textContent) || 0;
+        let due = parseInt(document.getElementById('feesDue').textContent) || 0;
+
+        database.ref('users/' + uid + '/bookings/' + selectedKey).remove();
+        database.ref('users/' + uid).update({
+          remaining_classes: Math.max(remaining - 1, 0),
+          total_classes: Math.max(total - 1, 0),
+          fees_due: Math.max(due - fee, 0)
+        }).then(() => {
+          fetchStudentData();
+          toggleCancelForm();
+          alert("Class cancelled.");
+        });
+      });
+    }
+
+    fetchStudentData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In / Sign Up - Tiger MMA</title>
+  <link rel="stylesheet" href="CSS.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #000; color: white;">
+    <div class="logo" style="display: flex; align-items: center; gap: 1rem;">
+      <a href="homepage.html" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="logo.png" alt="Tiger Martial Arts Logo" style="height: 50px;">
+        <span style="font-weight: bold; color: blue; font-size: 1.7rem; margin-left: 1rem;">TIGER MMA</span>
+      </a>
+    </div>
+    <nav>
+      <a href="Membership.html">Membership</a>
+      <a href="Instructors.html">Instructors</a>
+      <a href="Timetable.html">Timetable</a>
+      <a href="Facilities.html">Facilities</a>
+      <a href="signin.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <!-- Main Section -->
+  <main style="background-color: black; padding: 4rem 2rem; min-height: 80vh; color: white;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Create an Account / Sign In</h2>
+    <div style="max-width: 400px; margin: 0 auto; background-color: rgba(0, 123, 255, 0.05); padding: 2rem; border-radius: 10px; box-shadow: 0 0 15px rgba(0,123,255,0.2);">
+      <input type="text" id="full_name" placeholder="Full Name" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 5px; border: none;" />
+      <input type="email" id="email" placeholder="Email Address" required style="width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 5px; border: none;" />
+      <input type="password" id="password" placeholder="Password" required style="width: 100%; padding: 0.75rem; margin-bottom: 1.5rem; border-radius: 5px; border: none;" />
+      <button onclick="register()" style="width: 100%; padding: 0.75rem; background-color: #007BFF; color: white; border: none; border-radius: 5px; margin-bottom: 1rem; cursor: pointer;">Sign Up</button>
+      <button onclick="login()" style="width: 100%; padding: 0.75rem; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Sign In</button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background-color: #000; color: white; text-align: center; padding: 1rem; border-top: 2px solid #007BFF; margin-top: 2rem; line-height: 1.6;">
+    <p>&copy; 2025 Tiger Martial Arts. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+  <script>
+    // ✅ Your Firebase Configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyCu0qNaElrIb0ExfqLb-ZxfCXSKW6WbL_Y",
+      authDomain: "tiger-mma-a43e9.firebaseapp.com",
+      projectId: "tiger-mma-a43e9",
+      storageBucket: "tiger-mma-a43e9.firebasestorage.app",
+      messagingSenderId: "275028568836",
+      appId: "1:275028568836:web:37f070cf3b3d5aa659be51"
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // ✅ Register
+    function register() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const full_name = document.getElementById('full_name').value.trim();
+
+      if (!validate_email(email) || !validate_password(password)) {
+        alert('Invalid email or password.');
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          const user = auth.currentUser;
+          const user_data = {
+            email: email,
+            full_name: full_name,
+            last_login: Date.now()
+          };
+          database.ref('users/' + user.uid).set(user_data);
+          alert('Account created successfully!');
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
+
+    // ✅ Login
+    function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!validate_email(email) || !validate_password(password)) {
+        alert('Invalid email or password.');
+        return;
+      }
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          const user = auth.currentUser;
+          const database_ref = database.ref();
+          const user_data = { last_login: Date.now() };
+
+          database_ref.child('users/' + user.uid).update(user_data);
+
+          // Fetch full name & redirect
+          database.ref('users/' + user.uid).once('value').then(function(snapshot) {
+            const full_name = snapshot.val().full_name;
+            alert("Welcome, " + full_name + "!");
+            window.location.href = "dashboard.html?name=" + encodeURIComponent(full_name) + "&uid=" + user.uid;
+          });
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
+
+    // ✅ Validation Helpers
+    function validate_email(email) {
+      const expression = /^[^@]+@\w+(\.\w+)+\w$/;
+      return expression.test(email);
+    }
+
+    function validate_password(password) {
+      return password.length >= 6;
+    }
+
+    function validate_field(field) {
+      return field !== null && field.length > 0;
+    }
+  </script>
+</body>
+</html>
